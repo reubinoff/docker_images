@@ -1,0 +1,44 @@
+FROM centos:7
+
+LABEL description="ssh server" author="Moshe Reubinoff"
+
+#SSHD
+RUN yum update -y; yum -y install openssh-server; systemctl enable sshd
+RUN yum -y install curl wget rsyslog zsh git vim 
+
+RUN yum clean all
+
+
+RUN echo 'root:123456' | chpasswd
+
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+
+
+RUN mkdir /root/.ssh
+RUN mkdir /var/run/sshd
+
+COPY keys  /root/.ssh/id_rsa
+RUN chmod 0600 /root/.ssh/id_rsa
+COPY keys.pub  /root/.ssh/id_rsa.pub
+ENV vi vim
+
+
+ENV LC_ALL "en_US.utf8"
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+
+# Install Zsh
+RUN git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh \
+		&& cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc \
+		&& chsh -s /bin/zsh
+
+RUN sed -i -E 's/ZSH_THEME="robbyrussell"/ZSH_THEME="af-magic"/g' ~/.zshrc
+
+
+EXPOSE 22
+
+# Run stuff when container starts
+CMD ["/usr/sbin/init"]
