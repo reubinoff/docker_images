@@ -20,6 +20,7 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 RUN mkdir /root/.ssh
 RUN mkdir /var/run/sshd
 
+# copy private and public keys which prepared with ssh-keygen (give thename /tmp/keys and copy files to your Dockerfile dir)
 COPY keys  /root/.ssh/id_rsa
 RUN chmod 0600 /root/.ssh/id_rsa
 COPY keys.pub  /root/.ssh/id_rsa.pub
