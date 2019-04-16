@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  ssh_srv:
+    image: reubinoff/centos_ssh:1.0
+    build: ../../images_maker/centos_7
+    container_name: ssh_srv
+    volumes:
+      - ./test-data:/tmp/test
+      - configuration:/dot_files
+    ports:
+     - "2050:22"
+
+volumes:
+  test-data:
+  configuration:
+
